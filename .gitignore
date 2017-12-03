@@ -27,7 +27,6 @@ viewPagerIndicator/*.iml
 mapping\.txt
 app/unused.txt
 app/out_dexconfig.txt
-app/BUILD*
 app/seeds.txt
 device-2015-05-19-112137.png
 app/HISTORY BUILDS/BUILD8/BUILD8.zip
