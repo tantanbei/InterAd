@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import android.view.KeyEvent
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.aiclk.interad.R
@@ -20,17 +21,18 @@ class ActivityInterAd : Activity() {
         interAdView = findViewById(R.id.inter_ad)
         interAdView!!.settings.javaScriptEnabled = true
         interAdView!!.settings.domStorageEnabled = true
+        interAdView!!.settings.allowFileAccessFromFileURLs = true
         interAdView!!.webViewClient = WebViewClient()
-        interAdView!!.loadUrl("http://cdn.aiclicash.com/game/turnplate/turnplate.html?iclicashid=7254985")
+        interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914")
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        interAdView ?: return super.onKeyDown(keyCode, event)
+    override fun onBackPressed() {
+        interAdView ?: return super.onBackPressed()
 
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && interAdView!!.canGoBack()) {
+        if (interAdView!!.canGoBack()) {
             interAdView!!.goBack();
-            return true;
+        } else {
+            super.onBackPressed()
         }
-        return super.onKeyDown(keyCode, event);
     }
 }
