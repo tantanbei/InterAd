@@ -49,17 +49,17 @@ class ActivityInterAd : Activity() {
     @SuppressLint("MissingPermission")
     private fun loadWithImei() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&IMEI=" + telephonyManager!!.imei)
-            Log.d("tan", "url 1:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&IMEI=" + telephonyManager!!.imei)
+            interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager!!.imei)
+            Log.d("tan", "url 1:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager!!.imei)
         } else {
-            interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&IMEI=" + telephonyManager!!.deviceId)
-            Log.d("tan", "url 2:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&IMEI=" + telephonyManager!!.deviceId)
+            interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager!!.deviceId)
+            Log.d("tan", "url 2:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager!!.deviceId)
         }
     }
 
     private fun load() {
-        interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914")
-        Log.d("tan", "url 3:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914")
+        interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8")
+        Log.d("tan", "url 3:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8")
     }
 
     override fun onBackPressed() {
