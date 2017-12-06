@@ -20,6 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-optimizations !code/simplification/artithmetic,!field/*,!class/merging/*
 -optimizationpasses 3
 
 -assumenosideeffects class android.util.Log {
@@ -35,3 +36,5 @@
 -assumenosideeffects class java.lang.Exception {
     public void printStackTrace();
 }
+
+-printconfiguration 'release-out_dexconfig.txt'
