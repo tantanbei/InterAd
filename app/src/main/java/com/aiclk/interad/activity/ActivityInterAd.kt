@@ -9,8 +9,6 @@ import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.aiclk.interad.R
-import android.hardware.usb.UsbDevice.getDeviceId
-import android.content.Context.TELEPHONY_SERVICE
 import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -50,16 +48,16 @@ class ActivityInterAd : Activity() {
     private fun loadWithImei() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (telephonyManager?.imei != null) {
-                interAdView?.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager?.imei)
-                Log.d("tan", "url 1:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager?.imei)
+                interAdView?.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&type=app&gameTimes=8&IMEI=" + telephonyManager?.imei)
+                Log.d("tan", "url 1:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&type=app&gameTimes=8&IMEI=" + telephonyManager?.imei)
             } else {
                 load()
             }
         } else {
             val deviceId = telephonyManager?.deviceId
             if (deviceId != null) {
-                interAdView?.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + deviceId)
-                Log.d("tan", "url 2:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + deviceId)
+                interAdView?.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&type=app&gameTimes=8&IMEI=" + deviceId)
+                Log.d("tan", "url 2:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&type=app&gameTimes=8&IMEI=" + deviceId)
             } else {
                 load()
             }
@@ -67,8 +65,8 @@ class ActivityInterAd : Activity() {
     }
 
     private fun load() {
-        interAdView?.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8")
-        Log.d("tan", "url 3:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8")
+        interAdView?.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&type=app&gameTimes=8")
+        Log.d("tan", "url 3:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&type=app&gameTimes=8")
     }
 
     override fun onBackPressed() {
