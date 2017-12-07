@@ -32,12 +32,12 @@ class ActivityInterAd : Activity() {
         telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
         interAdView = findViewById(R.id.inter_ad)
-        interAdView!!.settings.javaScriptEnabled = true
-        interAdView!!.settings.domStorageEnabled = true
+        interAdView?.settings?.javaScriptEnabled = true
+        interAdView?.settings?.domStorageEnabled = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            interAdView!!.settings.allowFileAccessFromFileURLs = true
+            interAdView?.settings?.allowFileAccessFromFileURLs = true
         }
-        interAdView!!.webViewClient = WebViewClient()
+        interAdView?.webViewClient = WebViewClient()
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE), WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
@@ -49,16 +49,25 @@ class ActivityInterAd : Activity() {
     @SuppressLint("MissingPermission")
     private fun loadWithImei() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager!!.imei)
-            Log.d("tan", "url 1:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager!!.imei)
+            if (telephonyManager?.imei != null) {
+                interAdView?.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager?.imei)
+                Log.d("tan", "url 1:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager?.imei)
+            } else {
+                load()
+            }
         } else {
-            interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager!!.deviceId)
-            Log.d("tan", "url 2:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + telephonyManager!!.deviceId)
+            val deviceId = telephonyManager?.deviceId
+            if (deviceId != null) {
+                interAdView?.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + deviceId)
+                Log.d("tan", "url 2:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8&IMEI=" + deviceId)
+            } else {
+                load()
+            }
         }
     }
 
     private fun load() {
-        interAdView!!.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8")
+        interAdView?.loadUrl("http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8")
         Log.d("tan", "url 3:" + "http://cdn.aiclicash.com/game/fuli/fuli.html?iclicashid=7145914&gameTimes=8")
     }
 
