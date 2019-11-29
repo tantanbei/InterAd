@@ -19,12 +19,18 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.hytt.activation.R
 import com.hytt.activation.content.Const
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 class ActivityInterAd : Activity() {
     val WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 100
     private var interAdView: WebView? = null
     private var telephonyManager: TelephonyManager? = null
+    private var uid: String = ""
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,12 +58,12 @@ class ActivityInterAd : Activity() {
         } else {
             loadWithUid(getUid())
         }
+
+        sendByOKHttp()
     }
 
     @SuppressLint("MissingPermission", "HardwareIds")
     private fun getUid(): String {
-        var uid = ""
-
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 var imei = telephonyManager?.imei
@@ -108,5 +114,45 @@ class ActivityInterAd : Activity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         loadWithUid(getUid())
+    }
+
+    private fun sendByOKHttp() {
+        Thread(Runnable {
+            kotlin.run {
+                var conn: HttpURLConnection? = null
+                var reader: BufferedReader? = null
+                try {
+                    val url = URL("https://rcv.hyrainbow.com/trace?t=openapp&op1=activation&opt_uid=" + uid)
+                    Log.d("tan", "https://rcv.hyrainbow.com/trace?t=openapp&op1=activation&opt_uid=" + uid)
+
+                    conn = url.openConnection() as HttpURLConnection?
+                    //设置请求方法
+                    conn?.setRequestMethod("GET")
+                    //设置连接超时时间（毫秒）
+                    conn?.setConnectTimeout(5000)
+                    //设置读取超时时间（毫秒）
+                    conn?.setReadTimeout(5000)
+
+                    //返回输入流
+                    val input = conn?.getInputStream()
+
+                    //读取输入流
+                    reader = BufferedReader(InputStreamReader(input))
+                } catch (e: java.lang.Exception) {
+                    e.printStackTrace()
+                } finally {
+                    if (reader != null) {
+                        try {
+                            reader.close()
+                        } catch (e: IOException) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (conn != null) {//关闭连接
+                        conn.disconnect()
+                    }
+                }
+            }
+        }).start()
     }
 }
