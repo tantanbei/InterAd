@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
@@ -17,6 +18,7 @@ import android.webkit.DownloadListener
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.hytt.activation.R
+import com.hytt.activation.content.Const
 
 
 class ActivityInterAd : Activity() {
@@ -48,33 +50,48 @@ class ActivityInterAd : Activity() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE), WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
         } else {
-            loadWithImei()
+            loadWithUid(getUid())
         }
     }
 
     @SuppressLint("MissingPermission", "HardwareIds")
-    private fun loadWithImei() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (telephonyManager?.imei != null) {
-                interAdView?.loadUrl("https://static.hyrainbow.com/game/turnplate_18/turnplate_18.html?hyid=5050151&redpack=1&back=1&dc=" + telephonyManager?.imei)
-                Log.d("tan", "url 1:" + "https://static.hyrainbow.com/game/turnplate_18/turnplate_18.html?hyid=5050151&redpack=1&back=1&dc=" + telephonyManager?.imei)
+    private fun getUid(): String {
+        var uid = ""
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                var imei = telephonyManager?.imei
+                if (imei != null) {
+                    uid = imei
+                }
+                Log.d("tan", "uid 1:" + uid)
             } else {
-                load()
+                val deviceId = telephonyManager?.deviceId
+                if (deviceId != null) {
+                    uid = deviceId
+                    Log.d("tan", "uid 2:" + uid)
+                }
             }
-        } else {
-            val deviceId = telephonyManager?.deviceId
-            if (deviceId != null) {
-                interAdView?.loadUrl("https://static.hyrainbow.com/game/turnplate_18/turnplate_18.html?hyid=5050151&redpack=1&back=1&dc=" + deviceId)
-                Log.d("tan", "url 2:" + "http://static.hyrainbow.com/game/turnplate_18/turnplate_18.html?hyid=5050151&redpack=1&back=1&dc=" + deviceId)
-            } else {
-                load()
-            }
+        } catch (e: Exception) {
+            Log.d("tan", "handle exception:" + e)
         }
+
+        if (uid.length == 0) {
+            uid = Settings.System.getString(application.getContentResolver(), Settings.Secure.ANDROID_ID);
+        }
+
+        return uid
+    }
+
+    @SuppressLint("MissingPermission", "HardwareIds")
+    private fun loadWithUid(uid: String) {
+        interAdView?.loadUrl(Const.Url + uid)
+        Log.d("tan", "loadWithUid:" + Const.Url + uid)
     }
 
     private fun load() {
-        interAdView?.loadUrl("https://static.hyrainbow.com/game/turnplate_18/turnplate_18.html?hyid=5050151&redpack=1&back=1&dc=")
-        Log.d("tan", "url 3:" + "https://static.hyrainbow.com/game/turnplate_18/turnplate_18.html?hyid=5050151&redpack=1&back=1&dc=")
+        interAdView?.loadUrl(Const.Url)
+        Log.d("tan", "url 3:" + Const.Url)
     }
 
     override fun onBackPressed() {
@@ -90,10 +107,6 @@ class ActivityInterAd : Activity() {
     @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            loadWithImei()
-        } else {
-            load()
-        }
+        loadWithUid(getUid())
     }
 }
