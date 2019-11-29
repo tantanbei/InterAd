@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "com.aiclk.interad"
+        applicationId "com.hytt.activation"
         minSdkVersion 15
         targetSdkVersion 29
         versionCode 1

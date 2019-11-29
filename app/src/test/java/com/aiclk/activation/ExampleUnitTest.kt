@@ -1,4 +1,4 @@
-package com.aiclk.interad
+package com.hytt.activation
 
 import org.junit.Test
 
