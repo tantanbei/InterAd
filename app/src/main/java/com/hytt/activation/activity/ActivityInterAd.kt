@@ -3,34 +3,32 @@ package com.hytt.activation.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.Settings
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.webkit.DownloadListener
+import android.webkit.URLUtil
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.hytt.activation.R
 import com.hytt.activation.content.Const
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
+import com.hytt.activation.trace.Trace
 
 
 class ActivityInterAd : Activity() {
     val WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 100
     private var interAdView: WebView? = null
     private var telephonyManager: TelephonyManager? = null
-    private var uid: String = ""
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,18 +46,36 @@ class ActivityInterAd : Activity() {
         }
         interAdView?.webViewClient = WebViewClient()
         interAdView?.setDownloadListener(DownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
-            val i = Intent(Intent.ACTION_VIEW)
-            i.data = Uri.parse(url)
-            startActivity(i)
+            Log.d("tan", "url:" + url + " ua:" + userAgent + " contentDisposition:" + contentDisposition + " minetype:" + mimetype + " contentLength:" + contentLength)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                val i = Intent(Intent.ACTION_VIEW)
+                i.data = Uri.parse(url)
+                startActivity(i)
+                return@DownloadListener
+            }
+
+            // 指定下载地址
+            val request = DownloadManager.Request(Uri.parse(url))
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            // 设置下载文件保存的路径和文件名
+            val fileName = URLUtil.guessFileName(url, contentDisposition, mimetype)
+            Log.d("tan", "fileName:" + fileName)
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+            val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+            // 添加一个下载任务
+            val downloadId = downloadManager.enqueue(request)
+            Trace.SendTrace("download_start", "activation", "", "&opt_uid=" + Const.Uid)
+            Log.d("tan", "downloadId:{}" + downloadId)
         })
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE), WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), WRITE_EXTERNAL_STORAGE_REQUEST_CODE)
         } else {
             loadWithUid(getUid())
+            Trace.SendTrace("openapp", "activation", "", "&opt_uid=" + Const.Uid)
         }
-
-        sendByOKHttp()
     }
 
     @SuppressLint("MissingPermission", "HardwareIds")
@@ -68,43 +84,38 @@ class ActivityInterAd : Activity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 var imei = telephonyManager?.imei
                 if (imei != null) {
-                    uid = imei
+                    Const.Uid = imei
                 }
-                Log.d("tan", "uid 1:" + uid)
+                Log.d("tan", "uid 1:" + Const.Uid)
             } else {
                 val deviceId = telephonyManager?.deviceId
                 if (deviceId != null) {
-                    uid = deviceId
-                    Log.d("tan", "uid 2:" + uid)
+                    Const.Uid = deviceId
+                    Log.d("tan", "uid 2:" + Const.Uid)
                 }
             }
         } catch (e: Exception) {
             Log.d("tan", "handle exception:" + e)
         }
 
-        if (uid.length == 0) {
-            uid = Settings.System.getString(application.getContentResolver(), Settings.Secure.ANDROID_ID);
+        if (Const.Uid.length == 0) {
+            Const.Uid = Settings.System.getString(application.contentResolver, Settings.Secure.ANDROID_ID)
         }
 
-        return uid
+        return Const.Uid
     }
 
     @SuppressLint("MissingPermission", "HardwareIds")
     private fun loadWithUid(uid: String) {
-        interAdView?.loadUrl(Const.Url + uid)
-        Log.d("tan", "loadWithUid:" + Const.Url + uid)
-    }
-
-    private fun load() {
-        interAdView?.loadUrl(Const.Url)
-        Log.d("tan", "url 3:" + Const.Url)
+        interAdView?.loadUrl(Const.AppListUrl + uid)
+        Log.d("tan", "loadWithUid:" + Const.AppListUrl + uid)
     }
 
     override fun onBackPressed() {
         interAdView ?: return super.onBackPressed()
 
         if (interAdView!!.canGoBack()) {
-            interAdView!!.goBack();
+            interAdView!!.goBack()
         } else {
             super.onBackPressed()
         }
@@ -113,46 +124,8 @@ class ActivityInterAd : Activity() {
     @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.d("tan", "requestCode:" + requestCode + " permissions:" + permissions + " grantResults:" + grantResults)
         loadWithUid(getUid())
-    }
-
-    private fun sendByOKHttp() {
-        Thread(Runnable {
-            kotlin.run {
-                var conn: HttpURLConnection? = null
-                var reader: BufferedReader? = null
-                try {
-                    val url = URL("https://rcv.hyrainbow.com/trace?t=openapp&op1=activation&opt_uid=" + uid)
-                    Log.d("tan", "https://rcv.hyrainbow.com/trace?t=openapp&op1=activation&opt_uid=" + uid)
-
-                    conn = url.openConnection() as HttpURLConnection?
-                    //设置请求方法
-                    conn?.setRequestMethod("GET")
-                    //设置连接超时时间（毫秒）
-                    conn?.setConnectTimeout(5000)
-                    //设置读取超时时间（毫秒）
-                    conn?.setReadTimeout(5000)
-
-                    //返回输入流
-                    val input = conn?.getInputStream()
-
-                    //读取输入流
-                    reader = BufferedReader(InputStreamReader(input))
-                } catch (e: java.lang.Exception) {
-                    e.printStackTrace()
-                } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close()
-                        } catch (e: IOException) {
-                            e.printStackTrace();
-                        }
-                    }
-                    if (conn != null) {//关闭连接
-                        conn.disconnect()
-                    }
-                }
-            }
-        }).start()
+        Trace.SendTrace("openapp", "activation", "", "&opt_uid=" + Const.Uid)
     }
 }
