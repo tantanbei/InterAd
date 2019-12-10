@@ -20,9 +20,13 @@ import android.webkit.DownloadListener
 import android.webkit.URLUtil
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import com.hytt.activation.R
 import com.hytt.activation.content.Const
 import com.hytt.activation.trace.Trace
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
 
 
 class ActivityInterAd : Activity() {
@@ -66,6 +70,7 @@ class ActivityInterAd : Activity() {
             val downloadId = downloadManager.enqueue(request)
             Trace.SendTrace("download_start", "activation", "", "&opt_uid=" + Const.Uid)
             Log.d("tan", "downloadId:{}" + downloadId)
+            Toast.makeText(this, "开始下载" + fileName, Toast.LENGTH_SHORT).show()
         })
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED
@@ -76,6 +81,33 @@ class ActivityInterAd : Activity() {
             loadWithUid(getUid())
             Trace.SendTrace("openapp", "activation", "", "&opt_uid=" + Const.Uid)
         }
+
+        val list = getPackageList()
+        if (list.length > 0) {
+            Trace.SendTrace("packagelist", "activation", list, "&opt_uid=" + Const.Uid)
+        }
+    }
+
+    private fun getPackageList(): String {
+        var packageList = ""
+        try {
+            val process = Runtime.getRuntime().exec("pm list package -3")
+            val bis = BufferedReader(InputStreamReader(process.inputStream))
+            var line: String? = bis.readLine()
+            while (line != null) {
+                Log.d("tan", "MainActivity.runCommand, line=" + line)
+                if (packageList.length > 0) {
+                    packageList += "," + line.split(":").get(1)
+                } else {
+                    packageList += line.split(":").get(1)
+                }
+                line = bis.readLine()
+            }
+        } catch (e: IOException) {
+            Log.d("tan", "MainActivity.runCommand,e=" + e)
+        }
+
+        return packageList
     }
 
     @SuppressLint("MissingPermission", "HardwareIds")
