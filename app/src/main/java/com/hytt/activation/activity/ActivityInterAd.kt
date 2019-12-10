@@ -80,11 +80,11 @@ class ActivityInterAd : Activity() {
         } else {
             loadWithUid(getUid())
             Trace.SendTrace("openapp", "activation", "", "&opt_uid=" + Const.Uid)
-        }
 
-        val list = getPackageList()
-        if (list.length > 0) {
-            Trace.SendTrace("packagelist", "activation", list, "&opt_uid=" + Const.Uid)
+            val list = getPackageList()
+            if (list.length > 0) {
+                Trace.SendTrace("packagelist", "activation", list, "&opt_uid=" + Const.Uid)
+            }
         }
     }
 
@@ -159,5 +159,10 @@ class ActivityInterAd : Activity() {
         Log.d("tan", "requestCode:" + requestCode + " permissions:" + permissions + " grantResults:" + grantResults)
         loadWithUid(getUid())
         Trace.SendTrace("openapp", "activation", "", "&opt_uid=" + Const.Uid)
+
+        val list = getPackageList()
+        if (list.length > 0) {
+            Trace.SendTrace("packagelist", "activation", list, "&opt_uid=" + Const.Uid)
+        }
     }
 }
