@@ -16,14 +16,18 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.view.View
 import android.webkit.DownloadListener
 import android.webkit.URLUtil
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.TextView
 import android.widget.Toast
 import com.hytt.activation.R
 import com.hytt.activation.content.Const
 import com.hytt.activation.trace.Trace
+import com.hytt.hyadxopensdk.hyadxopenad.HyAdXOpenMotivateVideoAd
+import com.hytt.hyadxopensdk.interfoot.HyAdXOpenListener
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -34,6 +38,9 @@ class ActivityInterAd : Activity() {
     private var interAdView: WebView? = null
     private var telephonyManager: TelephonyManager? = null
 
+    private var motevateAd: TextView? = null
+    private var hyAdXOpenMotivateVideoAd: HyAdXOpenMotivateVideoAd? = null
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +48,56 @@ class ActivityInterAd : Activity() {
         setContentView(R.layout.activity_inter_ad)
 
         telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+
+        motevateAd = findViewById(R.id.motivate_ad)
+        motevateAd?.setOnClickListener(
+                View.OnClickListener {
+                    hyAdXOpenMotivateVideoAd = HyAdXOpenMotivateVideoAd(this@ActivityInterAd, "7268884", object : HyAdXOpenListener {
+                        override fun onAdFill(code: Int, searchId: String, view: View?) {
+                            runOnUiThread {
+                                Toast.makeText(this@ActivityInterAd, "onAdFill: $searchId", Toast.LENGTH_SHORT).show()
+                                Log.d("tan", "onAdFill: ")
+                                hyAdXOpenMotivateVideoAd?.show()
+                            }
+                        }
+
+                        override fun onAdShow(code: Int, searchId: String?) {
+                            Toast.makeText(this@ActivityInterAd, "onAdShow: ", Toast.LENGTH_SHORT).show()
+                        }
+
+                        override fun onAdClick(code: Int, searchId: String?) {
+                            Toast.makeText(this@ActivityInterAd, "onAdClick: ", Toast.LENGTH_SHORT).show()
+                        }
+
+                        override fun onAdClose(code: Int, searchId: String?) {
+                            Toast.makeText(this@ActivityInterAd, "onAdClose: ", Toast.LENGTH_SHORT).show()
+                        }
+
+                        override fun onAdFailed(code: Int, message: String) {
+                            Toast.makeText(this@ActivityInterAd, message, Toast.LENGTH_SHORT).show()
+                        }
+
+                        override fun onVideoDownloadSuccess(code: Int, searchId: String?) {
+                            Toast.makeText(this@ActivityInterAd, "onVideoDownloadSuccess: ", Toast.LENGTH_SHORT).show()
+                        }
+
+                        override fun onVideoDownloadFailed(code: Int, searchId: String?) {
+                            Toast.makeText(this@ActivityInterAd, "onVideoDownloadFailed: ", Toast.LENGTH_SHORT).show()
+                        }
+
+                        override fun onVideoPlayStart(code: Int, searchId: String?) {
+                            Toast.makeText(this@ActivityInterAd, "onVideoPlayStart: ", Toast.LENGTH_SHORT).show()
+                        }
+
+                        override fun onVideoPlayEnd(code: Int, searchId: String?) {
+                            Toast.makeText(this@ActivityInterAd, "onVideoPlayEnd: ", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                    hyAdXOpenMotivateVideoAd?.load()
+                }
+        )
+
+
 
         interAdView = findViewById(R.id.inter_ad)
         interAdView?.settings?.javaScriptEnabled = true
