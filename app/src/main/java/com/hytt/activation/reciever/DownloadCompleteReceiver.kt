@@ -4,6 +4,7 @@ import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.core.content.FileProvider
 import android.text.TextUtils
 import android.util.Log
 import com.hytt.activation.content.Const

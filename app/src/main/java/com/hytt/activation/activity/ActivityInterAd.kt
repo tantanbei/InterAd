@@ -12,8 +12,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.View
@@ -23,6 +23,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import com.hytt.activation.R
 import com.hytt.activation.content.Const
 import com.hytt.activation.trace.Trace

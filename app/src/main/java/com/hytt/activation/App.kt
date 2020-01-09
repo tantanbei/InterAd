@@ -8,6 +8,5 @@ class App : Application() {
         super.onCreate()
 
         HyAdXOpenSdk.getInstance().init(this, "1")
-        HyAdXOpenSdk.getInstance()
     }
 }
