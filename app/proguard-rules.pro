@@ -39,8 +39,8 @@
 
 -printconfiguration 'release-out_dexconfig.txt'
 
--keep public class com.hytt.hyadxopensdk.** { *; }
+-keep class com.hytt.hyadxopensdk.** { *; }
 -keep interface com.hytt.hyadxopensdk.** { *; }
 
--keep public class com.hytt.hyadxsdk.** { *; }
+-keep class com.hytt.hyadxsdk.** { *; }
 -keep interface com.hytt.hyadxsdk.** { *; }
