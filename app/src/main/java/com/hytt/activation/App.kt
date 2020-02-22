@@ -7,6 +7,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        HyAdXOpenSdk.getInstance().init(this, "1")
+        HyAdXOpenSdk.getInstance().init(this, "1", 4)
     }
 }
